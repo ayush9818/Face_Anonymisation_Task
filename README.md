@@ -65,7 +65,8 @@ python face_detect_insightface_parallel.py \
     --num-workers 10
 ```
 
+
 ## Sample Output
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![Alt Text](outputs/sample-output-gif.gif)
 
