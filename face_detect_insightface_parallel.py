@@ -14,6 +14,7 @@ warnings.filterwarnings('ignore')
 DETECTION_SIZE = (640, 1280)
 
 def process_frame(frame, app):
+    """Helper function to detect face from frame, tag and blur the face"""
     output = app.get(frame)
     frame_draw = frame.copy()
 
@@ -30,6 +31,16 @@ def process_frame(frame, app):
     return frame_draw
 
 def read_and_process_video_frames(input_stream, model, num_workers=10):
+    """
+    The function reads the video frames from the input video stream and perform following operations using multithreading
+        a) Detects faces from each face using Insightface's Buffalo_l model
+        b) For each detected face, apply gaussian blur 
+    args:
+        input_stream: Input video stream path 
+        model: face detection modle object 
+    returns:
+        frames_tracked: list of frames with blurred detected faces
+    """
     video = mmcv.VideoReader(input_stream)
     frames = [frame for frame in video]
 
@@ -40,6 +51,12 @@ def read_and_process_video_frames(input_stream, model, num_workers=10):
     return frames_tracked
 
 def save_video_frames(frames_tracked, output_video):
+    """
+    The function creates a video from the tracked frames and saves into the file specified
+    args:
+        frames_tacked: list of tracked frames 
+        output_video: output video path 
+    """
     dim = frames_tracked[0].shape[:2]
     fourcc = cv2.VideoWriter_fourcc(*'FMP4')  
     out = cv2.VideoWriter(output_video, fourcc, 25.0, (dim[1], dim[0]))
@@ -69,9 +86,11 @@ if __name__ == '__main__':
     print(f"Output Video Path : {args.output_video}")
     print(f"Detection Threshold : {args.detection_threshold}")
 
+     # Setting up detection model 
     app = FaceAnalysis(allowed_modules=['detection']) # enable detection model only
     app.prepare(ctx_id=0, det_thresh=args.detection_threshold, det_size=DETECTION_SIZE)
 
+    # Processing and Saving Video 
     frames_tracked = read_and_process_video_frames(input_stream=args.input_video,
                                                    model=app,
                                                    num_workers=args.num_workers)
